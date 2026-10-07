@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RLHND</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #FAFAF8; --ink: #17191E; --muted: #6C7076; --line: #E3E4E6;
+    --left: #1C5BDC; --right: #D63B2F; --ours: #50EBCE; --card: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-feature-settings: "cv05" 1, "ss03" 1;   /* single-storey l, rounded quotes */
+    font-size: 17px; line-height: 1.6;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 96px; }
+  header { text-align: center; padding: 72px 0 8px; }
+  h1 {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif; font-weight: 700;
+    letter-spacing: -0.022em;
+    font-size: clamp(34px, 5vw, 52px); line-height: 1.15; text-wrap: balance;
+  }
+  .logo { width: clamp(220px, 30vw, 340px); height: auto; display: block; margin: 0 auto; }
+  .subtitle {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif; font-weight: 600;
+    letter-spacing: -0.018em;
+    font-size: clamp(22px, 3vw, 32px); line-height: 1.25; text-wrap: balance;
+    margin-top: 18px;
+  }
+  .hand-rule {
+    width: 120px; height: 4px; margin: 22px auto 0; border-radius: 2px;
+    background: var(--ours);
+  }
+  .authors { margin-top: 20px; color: var(--ink); font-size: 17px; line-height: 1.6; }
+  .authors sup { color: var(--muted); font-size: 0.7em; margin-left: 1px; }
+  .affils { margin-top: 6px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+  .affils sup { font-size: 0.7em; margin-right: 1px; }
+  .summary { margin-top: 16px; color: var(--muted); }
+  .btns { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+  .btn {
+    font-family: "IBM Plex Mono", monospace; font-size: 14px; text-decoration: none;
+    color: var(--ink); border: 1px solid var(--ink); border-radius: 999px;
+    padding: 8px 20px; transition: background .15s, color .15s;
+  }
+  .btn:hover { background: var(--ink); color: var(--bg); }
+  .btn:focus-visible { outline: 2px solid var(--ours); outline-offset: 2px; }
+  section { margin-top: 76px; }
+  h2 {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif; font-weight: 600;
+    font-size: 26px; letter-spacing: -0.02em;
+    margin-bottom: 6px; text-wrap: balance;
+  }
+  .sub { color: var(--muted); font-size: 15px; margin-bottom: 18px; max-width: 78ch; }
+  .abstract { text-align: center; }
+  .abstract p { color: #33363C; max-width: 92ch; margin: 0 auto; text-align: justify; }
+  .legend {
+    display: flex; gap: 22px; justify-content: center; margin-top: 14px; flex-wrap: wrap;
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--muted);
+  }
+  .legend .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 7px; vertical-align: -1px; }
+  .clip { margin-top: 54px; }
+  .clip-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+  .chip {
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--ink);
+    background: rgba(80, 235, 206, 0.16); border: 1px solid var(--ours);
+    border-radius: 999px; padding: 2px 12px;
+  }
+  .clip-head h3 { font-family: "Inter", "Helvetica Neue", Arial, sans-serif; font-size: 19px;
+    font-weight: 600; letter-spacing: -0.015em; }
+  .rowlabel {
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--muted);
+    margin: 16px 0 8px; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+  /* tactile panels are one narrow hand each, so they pack tighter than the video grids;
+     the input frame is wider, so let it span two columns. */
+  .gridt { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; align-items: start; }
+  .gridt figure:first-child { grid-column: span 2; }
+  .gridt figure.w2 { grid-column: span 2; }   /* EgoDex panels hold both hands */
+  @media (max-width: 1100px) { .gridt { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 700px)  { .gridt { grid-template-columns: repeat(2, 1fr); }
+                               .gridt figure:first-child { grid-column: span 2; } }
+  figure {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  figure.ours { border: 3px solid var(--ours); box-shadow: 0 0 0 1px var(--ours); }
+  figure video { width: 100%; display: block; background: #fff; aspect-ratio: auto; }
+  figcaption {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted);
+    padding: 7px 11px; border-top: 1px solid var(--line);
+  }
+  figure.ours figcaption { color: var(--ink); font-weight: 500; background: rgba(80, 235, 206, 0.12); border-top-color: var(--ours); }
+  .placeholder {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    color: var(--muted); font-size: 13px; padding: 18px; min-height: 120px;
+    font-family: "IBM Plex Mono", monospace;
+  }
+  /* quantitative bar charts: baselines in neutral greys, ours in the page teal */
+  .qgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 36px; margin-top: 8px; }
+  @media (max-width: 800px) { .qgrid { grid-template-columns: 1fr; } }
+  .qrow-label { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .qrow-label h3 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .qlegend { display: flex; gap: 6px 18px; flex-wrap: wrap; list-style: none;
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--muted); }
+  .qlegend li { display: flex; align-items: center; gap: 7px; }
+  .qlegend .sw { width: 14px; height: 10px; border-radius: 2px; display: block; }
+  .qchart { margin: 0; border: 0; background: none; overflow: visible; }
+  .qchart .qtitle { font-size: 14.5px; font-weight: 600; text-align: center; margin-bottom: 2px; }
+  .qchart .qnote { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--muted);
+    text-align: center; margin-bottom: 6px; }
+  .qchart svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .qchart .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 4; }
+  .qchart .base { stroke: #B4B7BC; stroke-width: 1; }
+  .qchart .tick { fill: var(--muted); font-size: 11px; font-family: "IBM Plex Mono", monospace; }
+  .qchart .glabel { fill: var(--ink); font-size: 12px; font-weight: 500; }
+  .qchart .glabel.ours { font-weight: 700; }
+  .qchart .val { fill: var(--ink); font-size: 11px; font-family: "IBM Plex Mono", monospace; }
+  .qchart .val.ours { font-weight: 600; }
+  .qchart .na { fill: var(--muted); font-size: 11px; font-family: "IBM Plex Mono", monospace; }
+  .qchart rect.bar:hover { filter: brightness(.93); }
+  .qtip { position: fixed; pointer-events: none; z-index: 10; background: var(--ink); color: #fff;
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; padding: 5px 9px; border-radius: 6px;
+    opacity: 0; transition: opacity .1s; white-space: nowrap; }
+  .qtables { margin-top: 18px; }
+  .qtables summary { cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--muted); }
+  .qtables table { border-collapse: collapse; margin: 12px 0 4px; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .qtables th, .qtables td { padding: 4px 12px; text-align: right; border-bottom: 1px solid var(--line); }
+  .qtables th:first-child, .qtables td:first-child { text-align: left; }
+  .qtables td.ours { font-weight: 600; }
+  .tabs {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0 6px;
+    border-bottom: 1px solid var(--line); padding-bottom: 14px;
+  }
+  .tab {
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; line-height: 1;
+    color: var(--muted); background: var(--card); border: 1px solid var(--line);
+    border-radius: 999px; padding: 9px 14px; cursor: pointer;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .tab:hover { color: var(--ink); border-color: var(--ink); }
+  .tab[aria-selected="true"] {
+    color: var(--ink); font-weight: 500;
+    background: rgba(80, 235, 206, 0.16); border-color: var(--ours);
+  }
+  .tab:focus-visible { outline: 2px solid var(--ours); outline-offset: 2px; }
+  .panel .clip { margin-top: 18px; }
+  .panel-item[hidden] { display: none; }
+  .tabgroup { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tabgroup + .tabgroup { margin-top: 2px; }
+  .tabgroup-label {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--muted); margin-right: 2px; white-space: nowrap;
+  }
+  /* the results bar stacks its per-dataset groups; a flat bar (retargeting) still wraps */
+  .tabs:has(.tabgroup) { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .note { color: var(--muted); font-size: 15px; margin-top: 12px; max-width: 78ch; }
+  footer { margin-top: 96px; text-align: center; color: var(--muted); font-size: 14px; }
+  footer .hand-rule { width: 60px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img class="logo" src="logo.svg" alt="RLHND">
+  <h1 class="subtitle">Video Foundation Models as<br>Physically Grounded Hand Trackers for Robot Learning</h1>
+  <div class="hand-rule" aria-hidden="true"></div>
+  <p class="authors">
+    Seungjun Moon<sup>1,2</sup> &nbsp;&middot;&nbsp;
+    Subin Jeon<sup>3</sup> &nbsp;&middot;&nbsp;
+    Sangwoo Kim<sup>1</sup> &nbsp;&middot;&nbsp;
+    Hanbyul Joo<sup>3</sup> &nbsp;&middot;&nbsp;
+    Jinwoo Shin<sup>1,2</sup>
+  </p>
+  <p class="affils"><sup>1</sup>RLWRLD &nbsp;&nbsp; <sup>2</sup>KAIST &nbsp;&nbsp; <sup>3</sup>Seoul National University</p>
+  <p class="summary">RLHND delivers accurate hand pose, contact, and force estimates from monocular video, enabling improved robot policy learning.</p>
+  <div class="btns">
+    <a class="btn" href="#" aria-disabled="true">Paper (soon)</a>
+    <a class="btn" href="#" aria-disabled="true">Code (soon)</a>
+    <a class="btn" href="#results">Motion</a>
+    <a class="btn" href="#tactile">Contact &amp; force</a>
+  </div>
+</header>
+
+<figure class="teaser" style="max-width:92ch; margin:28px auto 8px;">
+  <div class="tabs" role="tablist" data-sec="teaser" style="margin:0 0 12px; padding-bottom:10px; justify-content:center;">
+    <button class="tab" role="tab" aria-selected="true" data-i="0">pose + tactile example #1</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="1">pose + tactile example #2</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="2">pose + tactile example #3</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="3">pose + tactile example #4</button>
+  </div>
+  <div class="panel" data-sec="teaser">
+    <div class="panel-item" data-i="0">
+      <video src="videos/teaser_tactile_rollball.mp4" autoplay loop muted playsinline style="width:100%; display:block; border-radius:8px;"></video>
+    </div>
+    <div class="panel-item" data-i="1" hidden>
+      <video data-src="videos/teaser_tactile.mp4" loop muted playsinline preload="none" style="width:100%; display:block; border-radius:8px;"></video>
+    </div>
+    <div class="panel-item" data-i="2" hidden>
+      <video data-src="videos/teaser_tactile_ex_segment_037.mp4" loop muted playsinline preload="none" style="width:100%; display:block; border-radius:8px;"></video>
+    </div>
+    <div class="panel-item" data-i="3" hidden>
+      <video data-src="videos/teaser_tactile_ex_video_0.mp4" loop muted playsinline preload="none" style="width:100%; display:block; border-radius:8px;"></video>
+    </div>
+  </div>
+  <figcaption style="font-size:0.9em; opacity:0.75; margin-top:6px; text-align:center;">RLHND on egocentric clips: hand pose (left), contact (middle) and force (right) with the total force over time.</figcaption>
+</figure>
+
+<section class="abstract">
+  <h2>Abstract</h2>
+  <p>
+    Recently, approaches that leverage human video datasets for robot policy training have become
+    increasingly prevalent. However, most existing hand trackers regress pose from cropped frames
+    with limited priors on hand motion and object interaction, resulting in inaccurate and
+    physically inconsistent estimates. Moreover, the lack of physical cues, e.g., contact and force,
+    limits the use of human videos for robot policy training. To this end, we propose RLHND, a video
+    foundation model-based hand tracking model that jointly estimates hand pose and realistic
+    tactile information from monocular egocentric videos. RLHND turns the pre-trained Cosmos&nbsp;3
+    video diffusion backbone into a deterministic clip-level feature extractor via clean-latent
+    conditioning, carrying its learned priors on hand motion and hand-object interaction into
+    tracking. For pose estimation, RLHND (i) predicts hand poses with anatomically plausible joint
+    angles and (ii) enables optional conditioning on the shape parameter to maintain consistent hand
+    shape within the same video and even across videos recorded by the same actor. For tactile
+    estimation, a separate tactile expert stream, trained with the pose stream frozen, predicts
+    dense contact and force over the hand surface. We further adopt LBS-based feature spreading to
+    enable vertex-wise feature extraction without costly per-vertex attention. RLHND achieves state-of-the-art
+    performance across various benchmark datasets for pose estimation, while also
+    achieving state-of-the-art performance in contact and force estimation. Moreover, we demonstrate
+    the utility of RLHND for robot learning through retargeting results and real-world robot
+    experiments. The code will be publicly released here after the review.
+  </p>
+</section>
+
+<section id="quant">
+  <h2>Quantitative results</h2>
+  <p class="sub">Key numbers from the paper's main tables, averaged over the benchmarks.</p>
+  <div class="qgrid">
+    <figure class="qchart" data-chart="mpjpe"></figure>
+    <figure class="qchart" data-chart="f1"></figure>
+    <figure class="qchart" data-chart="force"></figure>
+  </div>
+  <details class="qtables"><summary>Show the per-benchmark numbers</summary><div id="qtables"></div></details>
+  <div class="qtip" id="qtip"></div>
+</section>
+
+<section id="results">
+  <h2>Motion reconstruction</h2>
+  <p class="sub">Extensive qualitative comparison of 2D and 3D hand motion reconstruction.</p>
+  <div class="tabs" role="tablist" data-sec="results">
+    <div class="tabgroup"><span class="tabgroup-label">EgoDex</span>
+      <button class="tab" role="tab" aria-selected="true" data-i="0">arranging dominoes</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="1">furniture bench, stool</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="2">assembling structures</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="3">assembling tiles</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="4">folding cloth</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="5">pick &amp; place</button>
+    </div>
+    <div class="tabgroup"><span class="tabgroup-label">HOT3D</span>
+      <button class="tab" role="tab" aria-selected="false" data-i="6">Aria — food on a cutting board</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="7">Aria — wooden blocks</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="8">Quest — moving a keyboard</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="9">Quest — handling a plate</button>
+    </div>
+    <div class="tabgroup"><span class="tabgroup-label">ARCTIC</span>
+      <button class="tab" role="tab" aria-selected="false" data-i="10">ego — box grab</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="11">ego — closing a box</button>
+    </div>
+  </div>
+  <div class="panel" data-sec="results">
+    <div class="clip panel-item" data-i="0">
+      <div class="clip-head"><h3>EgoDex &mdash; arranging dominoes</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex1_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/egodex1_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex1_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex1_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex1_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex1_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex1_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex1_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex1_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure><video data-src="videos/egodex1_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex1_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex1_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex1_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex1_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex1_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex1_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="clip panel-item" data-i="1" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; furniture bench, stool</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex7_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/egodex7_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex7_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex7_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex7_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex7_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex7_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex7_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex7_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth (ARKit)</figcaption></figure>
+        <figure><video data-src="videos/egodex7_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex7_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex7_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex7_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex7_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex7_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex7_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="2" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; assembling structures</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex34_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/egodex34_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex34_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex34_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex34_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex34_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex34_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex34_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex34_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth (ARKit)</figcaption></figure>
+        <figure><video data-src="videos/egodex34_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex34_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex34_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex34_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex34_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex34_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex34_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="3" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; assembling tiles</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex51_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/egodex51_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex51_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex51_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex51_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex51_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex51_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex51_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex51_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth (ARKit)</figcaption></figure>
+        <figure><video data-src="videos/egodex51_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex51_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex51_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex51_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex51_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex51_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex51_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="4" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; folding cloth</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex57_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/egodex57_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex57_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex57_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex57_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex57_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex57_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex57_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex57_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth (ARKit)</figcaption></figure>
+        <figure><video data-src="videos/egodex57_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex57_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex57_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex57_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex57_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex57_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex57_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="5" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; pick &amp; place</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex63_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/egodex63_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex63_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex63_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex63_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex63_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex63_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex63_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/egodex63_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth (ARKit)</figcaption></figure>
+        <figure><video data-src="videos/egodex63_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/egodex63_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/egodex63_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/egodex63_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/egodex63_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/egodex63_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/egodex63_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="6" hidden>
+      <div class="clip-head"><h3>HOT3D Aria &mdash; food on a cutting board</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/aria444_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/aria444_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/aria444_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/aria444_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/aria444_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/aria444_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/aria444_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/aria444_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/aria444_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure><video data-src="videos/aria444_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/aria444_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/aria444_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/aria444_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/aria444_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/aria444_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/aria444_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="7" hidden>
+      <div class="clip-head"><h3>HOT3D Aria &mdash; wooden blocks</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/aria407_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/aria407_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/aria407_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/aria407_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/aria407_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/aria407_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/aria407_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/aria407_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/aria407_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure><video data-src="videos/aria407_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/aria407_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/aria407_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/aria407_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/aria407_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/aria407_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/aria407_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="8" hidden>
+      <div class="clip-head"><h3>HOT3D Quest &mdash; moving a keyboard</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/quest292_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/quest292_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/quest292_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/quest292_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/quest292_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/quest292_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/quest292_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/quest292_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/quest292_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure><video data-src="videos/quest292_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/quest292_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/quest292_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/quest292_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/quest292_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/quest292_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/quest292_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="9" hidden>
+      <div class="clip-head"><h3>HOT3D Quest &mdash; handling a plate</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/quest411_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/quest411_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/quest411_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/quest411_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/quest411_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/quest411_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/quest411_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/quest411_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/quest411_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure><video data-src="videos/quest411_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/quest411_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/quest411_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/quest411_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/quest411_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/quest411_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/quest411_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="10" hidden>
+      <div class="clip-head"><h3>ARCTIC ego &mdash; box grab</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/arctic1_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/arctic1_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/arctic1_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/arctic1_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/arctic1_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/arctic1_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/arctic1_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/arctic1_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/arctic1_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure><video data-src="videos/arctic1_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/arctic1_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/arctic1_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/arctic1_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/arctic1_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/arctic1_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/arctic1_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="11" hidden>
+      <div class="clip-head"><h3>ARCTIC ego &mdash; closing a box</h3></div>
+      <div class="rowlabel">video overlay</div>
+      <div class="grid">
+        <figure><video data-src="videos/arctic21_original.mp4" loop muted playsinline preload="none"></video><figcaption>Original</figcaption></figure>
+        <figure><video data-src="videos/arctic21_hamer_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/arctic21_wilor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/arctic21_hawor_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/arctic21_haptic_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/arctic21_handflow_2d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/arctic21_dreamhand_2d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/arctic21_rlhnd_2d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+      <div class="rowlabel">world-frame trajectory</div>
+      <div class="grid">
+        <figure><video data-src="videos/arctic21_gt_3d.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure><video data-src="videos/arctic21_hamer_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaMeR</figcaption></figure>
+        <figure><video data-src="videos/arctic21_wilor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>WiLoR</figcaption></figure>
+        <figure><video data-src="videos/arctic21_hawor_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure><video data-src="videos/arctic21_haptic_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HaPTIC</figcaption></figure>
+        <figure><video data-src="videos/arctic21_handflow_3d.mp4" loop muted playsinline preload="none"></video><figcaption>HandFlow</figcaption></figure>
+        <figure><video data-src="videos/arctic21_dreamhand_3d.mp4" loop muted playsinline preload="none"></video><figcaption>ACE-Ego-Hand</figcaption></figure>
+        <figure class="ours"><video data-src="videos/arctic21_rlhnd_3d.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tactile">
+  <h2>Contact and force</h2>
+  <p class="sub">Extensive qualitative comparison of per-vertex contact and force estimation.</p>
+  <div class="tabs" role="tablist" data-sec="tactile">
+    <div class="tabgroup"><span class="tabgroup-label">OpenTouch</span>
+      <button class="tab" role="tab" aria-selected="true" data-i="0">kitchen sink</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="1">pots on a shelf</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="2">tool wall</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="3">kitchenware aisle</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="4">workbench</button>
+    </div>
+    <div class="tabgroup"><span class="tabgroup-label">PVDB</span>
+      <button class="tab" role="tab" aria-selected="false" data-i="5">typing</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="6">writing</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="7">writing 2</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="8">writing 3</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="9">pressing</button>
+    </div>
+    <div class="tabgroup"><span class="tabgroup-label">EgoDex</span>
+      <button class="tab" role="tab" aria-selected="false" data-i="10">magnetic tiles</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="11">lid off a tub</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="12">model desk</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="13">soft blocks</button>
+      <button class="tab" role="tab" aria-selected="false" data-i="14">connectors</button>
+    </div>
+  </div>
+  <div class="panel" data-sec="tactile">
+    <div class="clip panel-item" data-i="0">
+      <div class="clip-head"><h3>OpenTouch &mdash; reaching into a kitchen sink</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_ot_kitchen_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_kitchen_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_kitchen_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_kitchen_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_kitchen_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_kitchen_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_kitchen_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="1" hidden>
+      <div class="clip-head"><h3>OpenTouch &mdash; handling pots on a shelf</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_ot_plant_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_plant_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_plant_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_plant_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_plant_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_plant_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_plant_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="2" hidden>
+      <div class="clip-head"><h3>OpenTouch &mdash; taking a level off a tool wall</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_ot_fablab3_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab3_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab3_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab3_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_fablab3_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab3_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_fablab3_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="3" hidden>
+      <div class="clip-head"><h3>OpenTouch &mdash; reaching into a kitchenware aisle</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_ot_target_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_target_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_target_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_target_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_target_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_target_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_target_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="4" hidden>
+      <div class="clip-head"><h3>OpenTouch &mdash; lifting a block at a workbench</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_ot_fablab2_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab2_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab2_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab2_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_fablab2_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_ot_fablab2_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_ot_fablab2_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="5" hidden>
+      <div class="clip-head"><h3>PressureVisionDB &mdash; typing on a tablet</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_pv_ipad1_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_ipad1_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_ipad1_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_ipad1_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_ipad1_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_ipad1_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_ipad1_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="6" hidden>
+      <div class="clip-head"><h3>PressureVisionDB &mdash; tracing a word with one finger</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_pv_draw1_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw1_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw1_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw1_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_draw1_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw1_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_draw1_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="7" hidden>
+      <div class="clip-head"><h3>PressureVisionDB &mdash; tracing a word with one finger</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_pv_draw2_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw2_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw2_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw2_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_draw2_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw2_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_draw2_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="8" hidden>
+      <div class="clip-head"><h3>PressureVisionDB &mdash; tracing a word with one finger</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_pv_draw3_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw3_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw3_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw3_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_draw3_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_draw3_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_draw3_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="9" hidden>
+      <div class="clip-head"><h3>PressureVisionDB &mdash; pressing with a cupped hand</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_pv_press_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_press_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Ground truth</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_press_haco.mp4" loop muted playsinline preload="none"></video><figcaption>HACO</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_press_hope.mp4" loop muted playsinline preload="none"></video><figcaption>HOPE</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_press_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+        <figure class=""><video data-src="videos/tactile_pv_press_force_gt.mp4" loop muted playsinline preload="none"></video><figcaption>Force GT</figcaption></figure>
+        <figure class="ours "><video data-src="videos/tactile_pv_press_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="10" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; pulling magnetic tiles apart</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_eg_tiles_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_tiles_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Contact (ours) &mdash; left, right</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_tiles_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours) &mdash; left, right</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="11" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; taking a lid off a tub</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_eg_lid_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_lid_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Contact (ours) &mdash; left, right</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_lid_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours) &mdash; left, right</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="12" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; assembling a model desk</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_eg_desk_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_desk_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Contact (ours) &mdash; left, right</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_desk_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours) &mdash; left, right</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="13" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; building a row of soft blocks</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_eg_legos_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_legos_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Contact (ours) &mdash; left, right</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_legos_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours) &mdash; left, right</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="14" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; joining two connector pieces</h3><span class="chip">contact + force</span></div>
+      <div class="gridt">
+        <figure class=""><video data-src="videos/tactile_eg_structures_input.mp4" loop muted playsinline preload="none"></video><figcaption>Input</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_structures_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Contact (ours) &mdash; left, right</figcaption></figure>
+        <figure class="ours w2"><video data-src="videos/tactile_eg_structures_force_ours.mp4" loop muted playsinline preload="none"></video><figcaption>Force (ours) &mdash; left, right</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="robot">
+  <h2>Real-robot demos</h2>
+  <p class="sub">Real-robot rollouts of DPP + RLHND on an RB-Y1 with WUJI hands.</p>
+  <div class="tabs" role="tablist" data-sec="robot">
+    <button class="tab" role="tab" aria-selected="true" data-i="0">PnP - bottle</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="1">PnP - box</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="2">PnP - ball</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="3">PnP - bird</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="4">Bimanual - plastic bag</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="5">Bimanual - assemble tissue</button>
+  </div>
+  <div class="panel" data-sec="robot">
+    <div class="clip panel-item" data-i="0">
+      <figure style="max-width:960px; margin:0 auto;"><video data-src="videos/robot_bottle.mp4" loop muted playsinline preload="none"></video><figcaption>PnP - bottle</figcaption></figure>
+    </div>
+    <div class="clip panel-item" data-i="1" hidden>
+      <figure style="max-width:960px; margin:0 auto;"><video data-src="videos/robot_box.mp4" loop muted playsinline preload="none"></video><figcaption>PnP - box</figcaption></figure>
+    </div>
+    <div class="clip panel-item" data-i="2" hidden>
+      <figure style="max-width:960px; margin:0 auto;"><video data-src="videos/robot_ball.mp4" loop muted playsinline preload="none"></video><figcaption>PnP - ball</figcaption></figure>
+    </div>
+    <div class="clip panel-item" data-i="3" hidden>
+      <figure style="max-width:960px; margin:0 auto;"><video data-src="videos/robot_bird.mp4" loop muted playsinline preload="none"></video><figcaption>PnP - bird</figcaption></figure>
+    </div>
+    <div class="clip panel-item" data-i="4" hidden>
+      <figure style="max-width:960px; margin:0 auto;"><video data-src="videos/robot_plastic_bag.mp4" loop muted playsinline preload="none"></video><figcaption>Bimanual - plastic bag</figcaption></figure>
+    </div>
+    <div class="clip panel-item" data-i="5" hidden>
+      <figure style="max-width:420px; margin:0 auto;"><video data-src="videos/robot_assemble_tissue.mp4" loop muted playsinline preload="none"></video><figcaption>Bimanual - assemble tissue</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="retargeting">
+  <h2>Retargeting to robot hands</h2>
+  <p class="sub">Predicted hand motion retargeted to a dexterous robot hand with DexPilot vector retargeting.</p>
+  <div class="tabs" role="tablist" data-sec="retargeting">
+    <button class="tab" role="tab" aria-selected="true" data-i="0">ARCTIC &middot; Inspire</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="1">HOT3D Quest &middot; Shadow</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="2">HOT3D Aria &middot; Inspire</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="3">EgoDex &middot; Jenga</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="4">EgoDex &middot; blocks</button>
+    <button class="tab" role="tab" aria-selected="false" data-i="5">EgoDex &middot; stool</button>
+  </div>
+  <div class="panel" data-sec="retargeting">
+    <div class="clip panel-item" data-i="0">
+      <div class="clip-head"><h3>ARCTIC ego &mdash; lifting a box</h3><span class="chip">Inspire RH56</span></div>
+      <div class="grid2">
+        <figure><video data-src="videos/retarget_arctic-inspire_hawor.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure class="ours"><video data-src="videos/retarget_arctic-inspire_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="1" hidden>
+      <div class="clip-head"><h3>HOT3D Quest &mdash; two-handed manipulation</h3><span class="chip">Shadow</span></div>
+      <div class="grid2">
+        <figure><video data-src="videos/retarget_quest-shadow_hawor.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure class="ours"><video data-src="videos/retarget_quest-shadow_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="2" hidden>
+      <div class="clip-head"><h3>HOT3D Aria &mdash; turning a cube over a bowl</h3><span class="chip">Inspire RH56</span></div>
+      <div class="grid2">
+        <figure><video data-src="videos/retarget_aria-inspire_hawor.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure class="ours"><video data-src="videos/retarget_aria-inspire_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="3" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; stacking a Jenga tower</h3><span class="chip">WUJI v2</span></div>
+      <div class="grid2">
+        <figure><video data-src="videos/retarget_egodex-wuji_hawor.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure class="ours"><video data-src="videos/retarget_egodex-wuji_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="4" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; assembling soft blocks</h3><span class="chip">Inspire RH56</span></div>
+      <div class="grid2">
+        <figure><video data-src="videos/retarget_egodex-inspire_hawor.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure class="ours"><video data-src="videos/retarget_egodex-inspire_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+    <div class="clip panel-item" data-i="5" hidden>
+      <div class="clip-head"><h3>EgoDex &mdash; assembling a stool</h3><span class="chip">Sharpa Wave</span></div>
+      <div class="grid2">
+        <figure><video data-src="videos/retarget_egodex-shadow_hawor.mp4" loop muted playsinline preload="none"></video><figcaption>HaWoR</figcaption></figure>
+        <figure class="ours"><video data-src="videos/retarget_egodex-shadow_ours.mp4" loop muted playsinline preload="none"></video><figcaption>RLHND (ours)</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="hand-rule" aria-hidden="true"></div>
+  &copy; 2026 RLHND authors &middot; Hosted on GitHub Pages
+</footer>
+
+</div>
+<script>
+(function () {
+  function activate(sec, i) {
+    document.querySelectorAll('.tabs[data-sec="' + sec + '"] .tab').forEach(function (t) {
+      t.setAttribute('aria-selected', String(Number(t.dataset.i) === i));
+    });
+    document.querySelectorAll('.panel[data-sec="' + sec + '"] .panel-item').forEach(function (p) {
+      var on = Number(p.dataset.i) === i;
+      p.hidden = !on;
+      p.querySelectorAll('video').forEach(function (v) {
+        if (on) {
+          if (!v.getAttribute('src') && v.dataset.src) { v.setAttribute('src', v.dataset.src); }
+          var r = v.play();
+          if (r && r.catch) { r.catch(function () {}); }
+        } else {
+          v.pause();
+        }
+      });
+    });
+  }
+  document.querySelectorAll('.tabs').forEach(function (bar) {
+    var sec = bar.dataset.sec;
+    bar.addEventListener('click', function (e) {
+      var b = e.target.closest('.tab');
+      if (b) { activate(sec, Number(b.dataset.i)); }
+    });
+    bar.addEventListener('keydown', function (e) {
+      var ts = Array.prototype.slice.call(bar.querySelectorAll('.tab'));
+      var cur = 0;
+      ts.forEach(function (t, k) { if (t.getAttribute('aria-selected') === 'true') { cur = k; } });
+      var nx = e.key === 'ArrowRight' ? cur + 1 : (e.key === 'ArrowLeft' ? cur - 1 : -1);
+      if (nx >= 0 && nx < ts.length) { e.preventDefault(); ts[nx].focus(); activate(sec, nx); }
+    });
+  });
+  // load/play a section's first clip only once it comes near the viewport
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        if (en.isIntersecting) { activate(en.target.dataset.sec, 0); io.unobserve(en.target); }
+      });
+    }, { rootMargin: '250px' });
+    document.querySelectorAll('.panel').forEach(function (p) { io.observe(p); });
+  } else {
+    document.querySelectorAll('.panel').forEach(function (p) { activate(p.dataset.sec, 0); });
+  }
+})();
+</script>
+<script>
+(function () {
+  var C = ['#C3C6CB', '#80858C', '#50EBCE'];
+  // per-benchmark numbers from the paper's tables; each chart shows their mean
+  var charts = {
+    mpjpe: { title: 'MPJPE-p (mm) ↓', note: 'mean of HOT3D, ARCTIC, EgoDex', dec: 2, ldec: 1,
+             m: ['HaWoR', 'ACE-Ego-Hand', 'RLHND (ours)'], d: ['HOT3D', 'ARCTIC', 'EgoDex'],
+             v: [[41.53, 31.72, 27.76], [24.41, 14.86, 20.95], [13.01, 13.36, 19.90]] },
+    f1:    { title: 'Vertex-level contact F1 ↑', note: 'mean of OpenTouch, DexYCB, HOT3D, ARCTIC', dec: 3, ldec: 3, max: 0.8,
+             m: ['HACO', 'HOPE', 'RLHND (ours)'], d: ['OpenTouch', 'DexYCB', 'HOT3D', 'ARCTIC'],
+             v: [[0.373, 0.543, 0.244, 0.580], [0.663, 0.506, 0.197, 0.591], [0.696, 0.572, 0.589, 0.602]] },
+    force: { title: 'Force RMSE (kPa) ↓', note: 'mean of OpenTouch, PVDB', dec: 3, ldec: 2, max: 6,
+             m: ['PressureVision', 'HOPE', 'RLHND (ours)'], d: ['OpenTouch', 'PVDB'],
+             v: [[6.190, 3.726], [5.388, 2.091], [2.508, 2.066]] }
+  };
+  function mean(a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) { e.setAttribute(k, attrs[k]); }
+    if (text != null) { e.textContent = text; }
+    return e;
+  }
+  function niceMax(v) {
+    var p = Math.pow(10, Math.floor(Math.log10(v))), n = v / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 4 ? 4 : n <= 5 ? 5 : 10) * p;
+  }
+  var tip = document.getElementById('qtip');
+  function build(fig, c) {
+    var W = 320, H = 240, L = 36, R = 6, T = 18, B = 30, pw = W - L - R, ph = H - T - B;
+    var avg = c.v.map(function (a) { return a ? mean(a) : null; });
+    var ymax = c.max || niceMax(Math.max.apply(null, avg.filter(function (x) { return x != null; })) * 1.1);
+    fig.insertAdjacentHTML('beforeend', '<div class="qtitle">' + c.title + '</div><div class="qnote">' + c.note + '</div>');
+    var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': c.title + ', ' + c.note });
+    for (var i = 0; i <= 4; i++) {
+      var y = T + ph - ph * i / 4, t = ymax * i / 4;
+      svg.appendChild(el('line', { x1: L, x2: W - R, y1: y, y2: y, 'class': i ? 'grid' : 'base' }));
+      svg.appendChild(el('text', { x: L - 6, y: y + 4, 'text-anchor': 'end', 'class': 'tick' }, +t.toFixed(2)));
+    }
+    var cw = pw / 3, bw = Math.min(46, cw * 0.62), bars = [];
+    avg.forEach(function (v, mi) {
+      var cx = L + cw * mi + cw / 2, x = cx - bw / 2;
+      svg.appendChild(el('text', { x: cx, y: H - 8, 'text-anchor': 'middle', 'class': 'glabel' + (mi === 2 ? ' ours' : '') }, c.m[mi]));
+      if (v == null) {
+        svg.appendChild(el('text', { x: cx, y: T + ph - 6, 'text-anchor': 'middle', 'class': 'na' }, 'n/a'));
+        return;
+      }
+      var r = el('rect', { x: x, width: bw, y: T + ph, height: 0, rx: 4, fill: C[mi], 'class': 'bar' });
+      var t = el('text', { x: cx, y: T + ph - 4, 'text-anchor': 'middle', 'class': 'val' + (mi === 2 ? ' ours' : ''), opacity: 0 },
+                 v.toFixed(c.ldec));
+      r.addEventListener('mousemove', function (e) {
+        tip.textContent = c.m[mi] + ': ' + v.toFixed(c.dec) + '  (' + c.d.map(function (d, k) { return d + ' ' + c.v[mi][k]; }).join(', ') + ')';
+        tip.style.left = (e.clientX + 12) + 'px'; tip.style.top = (e.clientY - 30) + 'px'; tip.style.opacity = 1;
+      });
+      r.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
+      svg.appendChild(r); svg.appendChild(t);
+      bars.push({ r: r, t: t, h: ph * v / ymax, base: T + ph });
+    });
+    fig.appendChild(svg);
+    return bars;
+  }
+  function grow(bars, instant) {
+    var dur = 800, stagger = 120, t0 = null;
+    function frame(now) {
+      if (t0 === null) { t0 = now; }
+      var done = true;
+      bars.forEach(function (b, i) {
+        var f = instant ? 1 : Math.min(Math.max((now - t0 - i * stagger) / dur, 0), 1);
+        if (f < 1) { done = false; }
+        var h = b.h * (1 - Math.pow(1 - f, 3));
+        b.r.setAttribute('y', b.base - h); b.r.setAttribute('height', h);
+        b.t.setAttribute('y', b.base - h - 6); b.t.setAttribute('opacity', f > 0.6 ? 1 : 0);
+      });
+      if (!done) { requestAnimationFrame(frame); }
+    }
+    requestAnimationFrame(frame);
+  }
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var built = [];
+  document.querySelectorAll('.qchart').forEach(function (fig) {
+    built.push({ fig: fig, bars: build(fig, charts[fig.dataset.chart]) });
+  });
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        if (!en.isIntersecting) { return; }
+        built.forEach(function (b) { if (b.fig === en.target) { grow(b.bars, false); } });
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0.35 });
+    built.forEach(function (b) { io.observe(b.fig); });
+  } else {
+    built.forEach(function (b) { grow(b.bars, true); });
+  }
+  // per-benchmark table view of the same numbers
+  var html = '';
+  Object.keys(charts).forEach(function (k) {
+    var c = charts[k];
+    html += '<table><thead><tr><th>' + c.title + '</th>' + c.d.map(function (d) { return '<th>' + d + '</th>'; }).join('') +
+      '<th>Mean</th></tr></thead><tbody>';
+    c.m.forEach(function (m, mi) {
+      var cls = mi === 2 ? ' class="ours"' : '', row = c.v[mi];
+      html += '<tr><td' + cls + '>' + m + '</td>' + c.d.map(function (d, j) {
+        return '<td' + cls + '>' + (row ? row[j].toFixed(c.dec) : '–') + '</td>';
+      }).join('') + '<td' + cls + '>' + (row ? mean(row).toFixed(c.dec) : '–') + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  });
+  document.getElementById('qtables').innerHTML = html;
+})();
+</script>
+</body>
+</html>
